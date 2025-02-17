@@ -16,4 +16,4 @@ jobs:
           repo: vaultwarden
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: "echo latest release: '${{ steps.get_workflows.outputs.data }}'"
+      - run: "echo ${{ fromJSON(steps.get_workflows.outputs.data.workflows) }}"
