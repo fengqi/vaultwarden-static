@@ -17,9 +17,16 @@ jobs:
         id: get_workflows
         with:
           route: GET /repos/{owner}/{repo}/actions/workflows
-          owner: dani-garcia
-          repo: vaultwarden
+          owner: 'dani-garcia'
+          repo: 'vaultwarden'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - run: "echo latest release: '${{ steps.get_workflows.outputs }}'"
+      - uses: cloudposse/github-action-jq@0.4.0
+        id: match_workflow_id
+        with:
+          raw-output: '${{ steps.get_workflows.outputs.workflows }}'
+          script: |-
+            .[] | select(.name=="Release") | .id
+
+      - run: "echo latest release: '${{ steps.match_workflow_id.outputs }}'"
