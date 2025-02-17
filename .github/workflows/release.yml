@@ -21,7 +21,7 @@ jobs:
 
       - uses: cloudposse/github-action-jq@0.4.0
         id: match_workflow_id
-        input: ${{ steps.get_workflows.outputs.workflows }}
+        raw-output: '${{ steps.get_workflows.outputs.workflows }}'
         script: |-
           .[] | select(.name=="Release") | .id
 
