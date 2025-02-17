@@ -54,11 +54,11 @@ jobs:
           merge-multiple: true
           path: release
 
-      - name: Zip files
+      - name: Compress files
         run: |
-          cd release && mkdir -p zipped
+          cd release && mkdir -p compressed
           for file in *; do
-            [ -f "$file" ] && zip "zipped/${file}.zip" "$file"
+            [ -f "$file" ] && tar -czf "compressed/${file}.tar.gz" "$file"
           done
 
       - run: ls -R release
@@ -67,7 +67,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           repository: fengqi/vaultwarden-static
-          files: release/zipped/*
+          files: release/compressed/*
           draft: false
           generate_release_notes: false
           body: |
