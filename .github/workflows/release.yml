@@ -32,7 +32,7 @@ jobs:
       - uses: octokit/request-action@v2.x
         id: get_runs
         with:
-          route: /repos/dani-garcia/vaultwarden/actions/workflows/${{ steps.match_workflow_id.outputs.output }}/runs?branch=${{ inputs.tags }}
+          route: /repos/dani-garcia/vaultwarden/actions/workflows/${{ steps.match_workflow_id.outputs.output }}/runs?branch=${{ github.ref_name }}
           owner: dani-garcia
           repo: vaultwarden
         env:
