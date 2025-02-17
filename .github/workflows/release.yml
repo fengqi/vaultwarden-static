@@ -32,7 +32,7 @@ jobs:
       - uses: octokit/request-action@v2.x
         id: get_runs
         with:
-          route: /repos/dani-garcia/vaultwarden/actions/workflows/${{ steps.match_workflow_id.outputs.output }}/runs?branch=${{ github.ref_name }}
+          route: /repos/{owner}/{repo}/actions/workflows/${{ steps.match_workflow_id.outputs.output }}/runs?branch=${{ github.ref_name }}
           owner: dani-garcia
           repo: vaultwarden
         env:
@@ -47,3 +47,22 @@ jobs:
             .workflow_runs[] | select(.name == "Release") | .id
 
       - run: "echo latest release: '${{ steps.artifacts_id.outputs.output }}'"
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: vaultwarden-*
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: dani-garcia/vaultwarden
+          run-id: ${{ steps.artifacts_id.outputs.output }}
+          path: release
+
+      - run: ls -R release
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release/*
+          draft: false
+          generate_release_notes: true
+          body: |
+            release from https://github.com/dani-garcia/vaultwarden/actions/runs/${{ steps.artifacts_id.outputs.output }}
