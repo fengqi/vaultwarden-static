@@ -38,4 +38,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - run: "echo latest release: '${{ steps.get_runs.outputs.data }}'"
+      - uses: cloudposse/github-action-jq@0.4.0
+        id: artifacts_id
+        with:
+          raw-output: true
+          input: '${{ steps.get_runs.outputs.data }}'
+          script: |-
+            .workflow_runs[] | select(.name == "Release") | .id
+
+      - run: "echo latest release: '${{ steps.artifacts_id.outputs.output }}'"
