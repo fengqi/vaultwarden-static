@@ -54,15 +54,18 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           repository: dani-garcia/vaultwarden
           run-id: ${{ steps.artifacts_id.outputs.output }}
+          merge-multiple: true
           path: release
 
       - run: ls -R release
 
       - name: Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v1
         with:
           files: release/*
           draft: false
           generate_release_notes: true
           body: |
             release from https://github.com/dani-garcia/vaultwarden/actions/runs/${{ steps.artifacts_id.outputs.output }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
