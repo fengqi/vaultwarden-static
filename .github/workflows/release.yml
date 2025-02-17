@@ -9,11 +9,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: octokit/request-action@v2.x
-        id: get_latest_release
+        id: get_workflows
         with:
-          route: GET /repos/{owner}/{repo}/releases/latest
-          owner: octokit
-          repo: request-action
+          route: GET /repos/{owner}/{repo}/actions/workflows
+          owner: dani-garcia
+          repo: vaultwarden
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: "echo latest release: '${{ steps.get_latest_release.outputs.data }}'"
+      - run: "echo latest release: '${{ steps.get_workflows.outputs.data }}'"
