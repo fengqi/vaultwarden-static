@@ -20,8 +20,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - run: "echo latest release: '${{ steps.get_workflows.outputs.data }}'"
-
       - uses: cloudposse/github-action-jq@0.4.0
         id: match_workflow_id
         with:
@@ -29,8 +27,6 @@ jobs:
           input: '${{ steps.get_workflows.outputs.data }}'
           script: |-
             .workflows[] | select(.name == "Release") | .id
-
-      - run: "echo latest release: '${{ steps.match_workflow_id.outputs.output }}'"
 
       - uses: octokit/request-action@v2.x
         id: get_runs
@@ -49,8 +45,6 @@ jobs:
           script: |-
             .workflow_runs[] | select(.name == "Release") | .id
 
-      - run: "echo latest release: '${{ steps.artifacts_id.outputs.output }}'"
-
       - uses: actions/download-artifact@v4
         with:
           pattern: vaultwarden-*
@@ -60,13 +54,20 @@ jobs:
           merge-multiple: true
           path: release
 
+      - name: Zip files
+        run: |
+          cd release && mkdir -p zipped
+          for file in *; do
+            [ -f "$file" ] && zip "zipped/${file}.zip" "$file"
+          done
+
       - run: ls -R release
 
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           repository: fengqi/vaultwarden-static
-          files: release/*
+          files: release/zipped/*
           draft: false
           generate_release_notes: false
           body: |
