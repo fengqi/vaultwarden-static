@@ -1,0 +1,77 @@
+name: Log latest release
+on:
+  push:
+    tags:
+      - '[1-2].[0-9]+.[0-9]+'
+
+permissions:
+  contents: write
+
+jobs:
+  ReleaseFromVaultwardenActions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: octokit/request-action@v2.x
+        id: get_workflows
+        with:
+          route: GET /repos/{owner}/{repo}/actions/workflows
+          owner: dani-garcia
+          repo: vaultwarden
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: cloudposse/github-action-jq@0.4.0
+        id: match_workflow_id
+        with:
+          raw-output: true
+          input: '${{ steps.get_workflows.outputs.data }}'
+          script: |-
+            .workflows[] | select(.name == "Release") | .id
+
+      - uses: octokit/request-action@v2.x
+        id: get_runs
+        with:
+          route: /repos/{owner}/{repo}/actions/workflows/${{ steps.match_workflow_id.outputs.output }}/runs?branch=${{ github.ref_name }}
+          owner: dani-garcia
+          repo: vaultwarden
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: cloudposse/github-action-jq@0.4.0
+        id: artifacts_id
+        with:
+          raw-output: true
+          input: '${{ steps.get_runs.outputs.data }}'
+          script: |-
+            .workflow_runs[] | select(.name == "Release") | .id
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: vaultwarden-*
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: dani-garcia/vaultwarden
+          run-id: ${{ steps.artifacts_id.outputs.output }}
+          merge-multiple: true
+          path: release
+
+      # https://github.com/actions/download-artifact/issues/143
+      - name: Compress files
+        run: |
+          cd release && mkdir -p compressed
+          for file in *; do
+            [ -f "$file" ] && tar -czf "compressed/${file}.tar.gz" "$file"
+          done
+
+      - run: ls -R release
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          repository: fengqi/vaultwarden-static
+          files: release/compressed/*
+          draft: false
+          generate_release_notes: false
+          body: |
+            release from https://github.com/dani-garcia/vaultwarden/actions/runs/${{ steps.artifacts_id.outputs.output }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
