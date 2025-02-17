@@ -16,4 +16,11 @@ jobs:
           repo: vaultwarden
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: "echo ${{ fromJSON(steps.get_workflows.outputs.data.workflows) }}"
+      - run: "echo latest release: '${{ steps.get_workflows.outputs.data }}'"
+      - uses: cloudposse/github-action-jq@0.4.0
+        id: match_workflow_id
+        with:
+          input: '${{ steps.get_workflows.outputs.data }}'"
+          script: |-
+            .workflows[] | select(.name == "Release") | .id
+      - run: "echo latest release: '${{ steps.match_workflow_id.outputs.data }}'"
