@@ -68,7 +68,7 @@ jobs:
           repository: fengqi/vaultwarden-static
           files: release/*
           draft: false
-          generate_release_notes: true
+          generate_release_notes: false
           body: |
             release from https://github.com/dani-garcia/vaultwarden/actions/runs/${{ steps.artifacts_id.outputs.output }}
         env:
