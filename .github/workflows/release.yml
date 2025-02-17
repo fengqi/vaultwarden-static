@@ -24,4 +24,4 @@ jobs:
           input: '${{ steps.get_workflows.outputs.data }}'
           script: |-
             .workflows[] | select(.name == "Release") | .id
-      - run: "echo latest release: '${{ steps.match_workflow_id.outputs.data }}'"
+      - run: "echo latest release: '${{ steps.match_workflow_id.outputs.output }}'"
