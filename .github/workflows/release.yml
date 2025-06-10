@@ -65,7 +65,7 @@ jobs:
       - run: ls -R release
 
       - name: Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v2.2.2
         with:
           repository: fengqi/vaultwarden-static
           files: release/compressed/*
